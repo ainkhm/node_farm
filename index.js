@@ -30,25 +30,31 @@ const objData = JSON.parse(data);
 
 // Create  simple server
 const server = http.createServer((req,res) => {
-    const path = req.url;
+    //const path = req.url;
 
-    if(path === '/' || path === '/overview')
+    const {query, pathname} = url.parse(req.url, true);
+
+    
+    if(pathname === '/' || pathname === '/overview')
     {
         res.writeHead(200, {'Content-type': 'text/html'});
 
         const cards = objData.map((el) => {
            return replaceTemplate(tempCard, el);
-        });
+        }).join('');
         
         const outPut = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cards);
 
         res.end(outPut);
     }
-    else if(path === '/product')
+    else if(pathname === '/product')
     {
-        res.end(tempProduct);
+        res.writeHead(200, {'Content-type': 'text/html'});
+        const product = objData[query.id];
+        const outPut = replaceTemplate(tempProduct, product);
+        res.end(outPut);
     }
-    else if(path === '/api') {
+    else if(pathname === '/api') {
         res.writeHead(200, {
             'Content-type': 'application/json'
         });
